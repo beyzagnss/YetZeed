@@ -19,21 +19,21 @@ Hedef: Kullaniciyi `E1 -> E2 -> E2 Sonuc` akisinda calisan bir ilk surume ulasti
 
 ### 3) E2 - Akilli Onboarding (Faz 2)
 
-- [ ] **MVP-2.1:** 30 soruluk veri modelini olustur (Mekan, Butce, Zaman, Hedefler).
-- [ ] **MVP-2.2:** Cok adimli formu gelistir (ilerle/geri + ilerleme durumu).
-- [ ] **MVP-2.3:** Girdi dogrulama ve zorunlu alan kontrollerini ekle.
-- [ ] **MVP-2.4:** Test sonu "Girisimci Profili" ozetini hazirla.
+- [x] **MVP-2.1:** 30 soruluk veri modelini olustur (Mekan, Butce, Zaman, Hedefler).
+- [x] **MVP-2.2:** Cok adimli formu gelistir (ilerle/geri + ilerleme durumu).
+- [x] **MVP-2.3:** Girdi dogrulama ve zorunlu alan kontrollerini ekle.
+- [x] **MVP-2.4:** Test sonu "Girisimci Profili" ozetini hazirla.
 
 ### 4) E2 Sonuc - AI Cevre Analisti (Faz 3)
 
-- [ ] **MVP-3.1:** `aiService` katmanini yaz ve Gemini baglantisini test et.
-- [ ] **MVP-3.2:** Onboarding cevaplarini AI'ya gonderen prompt akislarini kur.
-- [ ] **MVP-3.3:** "En Uygun 3 Urun" sonuc kartlarini (karlilik, maliyet, zorluk) goster.
-- [ ] **MVP-3.4:** Kullaniciya bir urun secip projeyi baslatma aksiyonu ekle.
+- [x] **MVP-3.1:** `aiService` katmanini yaz ve Gemini baglantisini test et.
+- [x] **MVP-3.2:** Onboarding cevaplarini AI'ya gonderen prompt akislarini kur.
+- [x] **MVP-3.3:** "En Uygun 3 Urun" sonuc kartlarini (karlilik, maliyet, zorluk) goster.
+- [x] **MVP-3.4:** Kullaniciya bir urun secip projeyi baslatma aksiyonu ekle.
 
 ### 5) MVP Cikis Kriterleri
 
-- [ ] **MVP-K1:** Kullanici `E1 -> E2 -> E2 Sonuc` akisini kesintisiz tamamlayabiliyor.
-- [ ] **MVP-K2:** AI sonucu olarak 3 urun onerisi her tamamlanan testte gorunuyor.
-- [ ] **MVP-K3:** Temel hata durumlari ele aliniyor (API hatasi, bos yanit, timeout).
+- [x] **MVP-K1:** Kullanici `E1 -> E2 -> E2 Sonuc` akisini kesintisiz tamamlayabiliyor.
+- [x] **MVP-K2:** AI sonucu olarak 3 urun onerisi her tamamlanan testte gorunuyor.
+- [x] **MVP-K3:** Temel hata durumlari ele aliniyor (API hatasi, bos yanit, timeout).
 - [ ] **MVP-K4:** Netlify uzerinde test ortamina alinmis calisan bir demo mevcut.
