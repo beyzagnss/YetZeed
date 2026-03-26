@@ -13,8 +13,6 @@ const MONTH_NAMES = [
 export default function E4() {
   const { user } = useAuth();
   
-  // States based on Current Time (TR: UTC+3)
-  // Ensures default values match Turkey time properly
   const currentTRTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
   const [currentYear, setCurrentYear] = useState(currentTRTime.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(currentTRTime.getMonth() + 1); // 1 to 12
@@ -26,10 +24,8 @@ export default function E4() {
   const [advice, setAdvice] = useState(null);
   const [loadingAdvice, setLoadingAdvice] = useState(false);
 
-  // Annual overview is isolated from the monthly inputs
   const annualTotals = getAnnualTotals(user?.id, currentYear);
 
-  // Load monthly data when year/month changes
   useEffect(() => {
     const data = getMonthlyData(user?.id, currentYear, currentMonth);
     setIncomes(data.incomes);
@@ -37,15 +33,13 @@ export default function E4() {
     setDebts(data.debts);
   }, [user?.id, currentYear, currentMonth]);
 
-  // Handle saving whenever incomes, expenses, debts change
   useEffect(() => {
-    // Only save if data is loaded and not empty
+    // Only save if arrays are successfully initialized to prevent saving empty data early
     if (incomes.length > 0 || expenses.length > 0 || debts.length > 0) {
       saveMonthlyData(user?.id, currentYear, currentMonth, { incomes, expenses, debts });
     }
   }, [incomes, expenses, debts, user?.id, currentYear, currentMonth]);
 
-  // Calculate Monthly Totals
   const monthlyTotalIncome = incomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const monthlyTotalExpense = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const monthlyTotalDebt = debts.reduce((sum, item) => sum + Number(item.amount || 0), 0);
@@ -71,12 +65,9 @@ export default function E4() {
   const handleGetAdvice = async () => {
     setLoadingAdvice(true);
     try {
-      // Simulate backend AI advice based on structure
-      // Here it conceptually uses the actual monthly figures
       const result = await getBudgetAdvice(monthlyTotalIncome, monthlyTotalExpense + monthlyTotalDebt);
       setAdvice(result);
     } catch (error) {
-      // Fallback AI recommendation combining backend data analysis
       setTimeout(() => {
         setAdvice(
           "Giderleriniz izlenen bütçe hedeflerine paralel ilerliyor. Gelecek aylardaki kompost hammadde alımları için mevcut net kârınızın %20'sini nakit kenarda tutmanız, olası hammadde fiyat dalgalanmalarına karşı girişiminizi mali açıdan güvenceye alacaktır."
@@ -87,17 +78,30 @@ export default function E4() {
     }
   };
 
-  // Input Handlers
   const handleAmountChange = (type, id, value) => {
-    // Using string empty or number to allow user to delete number freely
     const strValue = value === '' ? '' : value;
-    if (type === 'income') {
-      setIncomes(incomes.map(item => item.id === id ? { ...item, amount: strValue } : item));
-    } else if (type === 'expense') {
-      setExpenses(expenses.map(item => item.id === id ? { ...item, amount: strValue } : item));
-    } else if (type === 'debt') {
-      setDebts(debts.map(item => item.id === id ? { ...item, amount: strValue } : item));
-    }
+    if (type === 'income') setIncomes(incomes.map(item => item.id === id ? { ...item, amount: strValue } : item));
+    else if (type === 'expense') setExpenses(expenses.map(item => item.id === id ? { ...item, amount: strValue } : item));
+    else if (type === 'debt') setDebts(debts.map(item => item.id === id ? { ...item, amount: strValue } : item));
+  };
+
+  const handleNameChange = (type, id, value) => {
+    if (type === 'income') setIncomes(incomes.map(item => item.id === id ? { ...item, name: value } : item));
+    else if (type === 'expense') setExpenses(expenses.map(item => item.id === id ? { ...item, name: value } : item));
+    else if (type === 'debt') setDebts(debts.map(item => item.id === id ? { ...item, name: value } : item));
+  };
+
+  const handleDelete = (type, id) => {
+    if (type === 'income') setIncomes(incomes.filter(item => item.id !== id));
+    else if (type === 'expense') setExpenses(expenses.filter(item => item.id !== id));
+    else if (type === 'debt') setDebts(debts.filter(item => item.id !== id));
+  };
+
+  const handleAdd = (type) => {
+    const newItem = { id: Date.now(), name: 'Yeni Kalem', amount: '' };
+    if (type === 'income') setIncomes([...incomes, newItem]);
+    else if (type === 'expense') setExpenses([...expenses, newItem]);
+    else if (type === 'debt') setDebts([...debts, newItem]);
   };
 
   return (
@@ -115,7 +119,7 @@ export default function E4() {
         </div>
       </div>
 
-      {/* 1. Annual Dashboard Overview (Stays independent of monthly pagination) */}
+      {/* 1. Annual Dashboard Overview */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-4 mb-4">
           {currentYear} Yıllık Özet
@@ -161,25 +165,40 @@ export default function E4() {
           
           {/* Incomes */}
           <div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
-            <h3 className="text-md font-bold text-emerald-800 border-b border-emerald-100 pb-2 mb-4">
-              Gelirler (Income)
-            </h3>
+            <div className="flex items-center justify-between border-b border-emerald-100 pb-2 mb-4">
+              <h3 className="text-md font-bold text-emerald-800">Gelirler (Income)</h3>
+              <button onClick={() => handleAdd('income')} className="text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-md transition-colors">
+                + Ekle
+              </button>
+            </div>
             <div className="space-y-4">
               {incomes.map((item) => (
-                <div key={item.id} className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600 ml-1">{item.name}</label>
+                <div key={item.id} className="flex flex-col gap-1.5 group">
+                  <div className="flex items-center justify-between ml-1">
+                    <input 
+                      type="text" 
+                      value={item.name} 
+                      onChange={(e) => handleNameChange('income', item.id, e.target.value)}
+                      className="text-xs font-semibold text-slate-600 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-emerald-500 focus:outline-none w-full mr-2 py-0.5 transition-colors"
+                      placeholder="Kalem Adı"
+                    />
+                    <button onClick={() => handleDelete('income', item.id)} className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 px-1 font-bold" title="Kaldır">
+                      ✕
+                    </button>
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₺</span>
                     <input 
                       type="number"
                       value={item.amount}
                       onChange={(e) => handleAmountChange('income', item.id, e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2.5 text-sm font-bold text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-all"
+                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2 text-sm font-bold text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-all"
                       placeholder="0"
                     />
                   </div>
                 </div>
               ))}
+              {incomes.length === 0 && <div className="text-xs text-slate-400 italic text-center py-2">Henüz gelir kalemi yok.</div>}
             </div>
             <div className="mt-6 flex justify-between items-center bg-emerald-50 p-4 rounded-xl border border-emerald-100">
               <span className="font-semibold text-emerald-800 text-sm">Aylık Gelir</span>
@@ -189,25 +208,40 @@ export default function E4() {
 
           {/* Expenses */}
           <div className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-            <h3 className="text-md font-bold text-orange-800 border-b border-orange-100 pb-2 mb-4">
-              Giderler (Expenses)
-            </h3>
+            <div className="flex items-center justify-between border-b border-orange-100 pb-2 mb-4">
+              <h3 className="text-md font-bold text-orange-800">Giderler (Expenses)</h3>
+              <button onClick={() => handleAdd('expense')} className="text-xs font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-2.5 py-1 rounded-md transition-colors">
+                + Ekle
+              </button>
+            </div>
             <div className="space-y-4">
               {expenses.map((item) => (
-                <div key={item.id} className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600 ml-1">{item.name}</label>
+                <div key={item.id} className="flex flex-col gap-1.5 group">
+                  <div className="flex items-center justify-between ml-1">
+                    <input 
+                      type="text" 
+                      value={item.name} 
+                      onChange={(e) => handleNameChange('expense', item.id, e.target.value)}
+                      className="text-xs font-semibold text-slate-600 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-orange-500 focus:outline-none w-full mr-2 py-0.5 transition-colors"
+                      placeholder="Kalem Adı"
+                    />
+                    <button onClick={() => handleDelete('expense', item.id)} className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 px-1 font-bold" title="Kaldır">
+                      ✕
+                    </button>
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₺</span>
                     <input 
                       type="number"
                       value={item.amount}
                       onChange={(e) => handleAmountChange('expense', item.id, e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2.5 text-sm font-bold text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
+                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2 text-sm font-bold text-slate-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
                       placeholder="0"
                     />
                   </div>
                 </div>
               ))}
+              {expenses.length === 0 && <div className="text-xs text-slate-400 italic text-center py-2">Henüz gider kalemi yok.</div>}
             </div>
             <div className="mt-6 flex justify-between items-center bg-orange-50 p-4 rounded-xl border border-orange-100">
               <span className="font-semibold text-orange-800 text-sm">Aylık Gider</span>
@@ -217,25 +251,40 @@ export default function E4() {
 
           {/* Debts */}
           <div className="rounded-2xl border border-red-100 bg-white p-5 shadow-sm">
-            <h3 className="text-md font-bold text-red-800 border-b border-red-100 pb-2 mb-4">
-              Borçlar (Debts)
-            </h3>
+            <div className="flex items-center justify-between border-b border-red-100 pb-2 mb-4">
+              <h3 className="text-md font-bold text-red-800">Borçlar (Debts)</h3>
+              <button onClick={() => handleAdd('debt')} className="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-md transition-colors">
+                + Ekle
+              </button>
+            </div>
             <div className="space-y-4">
               {debts.map((item) => (
-                <div key={item.id} className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600 ml-1">{item.name}</label>
+                <div key={item.id} className="flex flex-col gap-1.5 group">
+                  <div className="flex items-center justify-between ml-1">
+                    <input 
+                      type="text" 
+                      value={item.name} 
+                      onChange={(e) => handleNameChange('debt', item.id, e.target.value)}
+                      className="text-xs font-semibold text-slate-600 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-red-500 focus:outline-none w-full mr-2 py-0.5 transition-colors"
+                      placeholder="Kalem Adı"
+                    />
+                    <button onClick={() => handleDelete('debt', item.id)} className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 px-1 font-bold" title="Kaldır">
+                      ✕
+                    </button>
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₺</span>
                     <input 
                       type="number"
                       value={item.amount}
                       onChange={(e) => handleAmountChange('debt', item.id, e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2.5 text-sm font-bold text-slate-900 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all"
+                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2 text-sm font-bold text-slate-900 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all"
                       placeholder="0"
                     />
                   </div>
                 </div>
               ))}
+              {debts.length === 0 && <div className="text-xs text-slate-400 italic text-center py-2">Henüz borç kalemi yok.</div>}
             </div>
             <div className="mt-6 flex justify-between items-center bg-red-50 p-4 rounded-xl border border-red-100">
               <span className="font-semibold text-red-800 text-sm">Aylık Ödeme</span>
