@@ -3,6 +3,7 @@ import Button from '../components/ui/Button'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { getTodayTasks, toggleTask as toggleTaskService, getTaskHistoryCount } from '../services/taskService'
+import { getSortedIncentives } from '../services/aiService'
 
 export default function E3() {
   const { user } = useAuth()
@@ -42,32 +43,54 @@ export default function E3() {
         </div>
       </div>
 
+      {/* Off-canvas Right Drawer Backdrop */}
       {drawerOpen && (
-        <div className="animate-in fade-in slide-in-from-top-4 rounded-2xl border border-sky-200 bg-sky-50 shadow-sm transition-all duration-300">
-          <div className="p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-sky-900">AI Girişimci Danışmanı</h2>
-              <button onClick={() => setDrawerOpen(false)} className="text-sky-700 hover:text-sky-900">Kapat</button>
-            </div>
-            <p className="mt-2 text-sm text-sky-800">Profilinize uygun 1 yeni devlet teşviki tespit edildi!</p>
-            
-            <div className="mt-4 rounded-xl border border-sky-100 bg-white p-4 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-sky-100 text-xl">💡</div>
-                <div>
-                  <h3 className="font-bold text-slate-900">KOSGEB İleri Girişimci Destek Programı</h3>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Ödediğiniz makine-teçhizat bedellerinin %75'i kadın girişimci olduğunuz için iade edilmektedir. Sera sisteminizi büyütürken bunu mutlaka kullanmalısınız.
-                  </p>
-                  <Button variant="ghost" className="mt-3 px-0 text-sky-600 hover:bg-transparent hover:underline">
-                    Detayları Görüntüle &rarr;
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div 
+          className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm transition-opacity"
+          onClick={() => setDrawerOpen(false)}
+        />
       )}
+
+      {/* Right Drawer */}
+      <div 
+        className={`fixed inset-y-0 right-0 z-50 w-full max-w-md transform overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
+          drawerOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-slate-100 p-6">
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-900">✨ AI Teşvik Danışmanı</h2>
+            <p className="mt-1 text-sm text-slate-500">Profilinize en uygun güncel hibe ve muafiyetler</p>
+          </div>
+          <button 
+            onClick={() => setDrawerOpen(false)} 
+            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          >
+             <span className="text-xl font-bold">✕</span>
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          {getSortedIncentives(user?.selectedPlant).map((inc, i) => (
+             <div key={inc.id} className={`rounded-xl border ${i < 3 ? 'border-sky-200 bg-sky-50 shadow-sm' : 'border-slate-100 bg-white'} p-4`}>
+               <div className="flex items-start gap-3">
+                 <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${i < 3 ? 'bg-sky-100 text-sky-600' : 'bg-slate-100 text-slate-600'} text-xl`}>
+                   {inc.icon}
+                 </div>
+                 <div>
+                   <h3 className={`font-bold ${i < 3 ? 'text-sky-900' : 'text-slate-700'}`}>{inc.title}</h3>
+                   <span className="inline-block mt-1 rounded bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                     {inc.source}
+                   </span>
+                   <p className={`mt-2 text-sm ${i < 3 ? 'text-sky-800' : 'text-slate-500'}`}>
+                     {inc.description}
+                   </p>
+                 </div>
+               </div>
+             </div>
+          ))}
+        </div>
+      </div>
 
       {/* Main Grid */}
       <div className="grid gap-6 md:grid-cols-3">
