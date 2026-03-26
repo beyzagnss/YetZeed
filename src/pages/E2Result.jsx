@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
-import { getPlantRecommendations } from '../services/aiService'
+import Button from '../components/ui/Button'
+import { getPlantRecommendations, getPlantBiologicalProfile } from '../services/aiService'
 import { useAuth } from '../auth/AuthContext'
 
 export default function E2Result() {
@@ -61,9 +62,19 @@ export default function E2Result() {
   }, [user])
 
   const handleSelectPlant = async (item) => {
-    await saveUserPlant(item.name)
-    await completeOnboarding()
-    navigate('/e3')
+    setLoading(true) // Turn on loading overlay during biological profiling
+    try {
+      const stages = await getPlantBiologicalProfile(item.name)
+      await saveUserPlant({ name: item.name, stages })
+      await completeOnboarding()
+      navigate('/e3')
+    } catch (err) {
+      console.error(err)
+      // Fallback
+      await saveUserPlant({ name: item.name, stages: { germinationDays: 14, harvestDays: 30 } })
+      await completeOnboarding()
+      navigate('/e3')
+    }
   }
 
   if (loading) {

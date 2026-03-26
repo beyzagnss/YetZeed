@@ -141,6 +141,42 @@ Eğer bitki sağlıklıysa newTasks mutlaka boş bir dizi [] olmalıdır.`;
   }
 }
 
+export async function getPlantBiologicalProfile(plantName) {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY eksik.");
+  
+  const prompt = `Sen profesyonel bir ziraat uzmanısın. Kullanıcı "${plantName}" yetiştirmeye karar verdi. 
+Lütfen bilinen tarımsal yetiştiricilik standartlarına göre bu bitkinin;
+1. Tohumdan, kuluçkadan çıkıp büyüme evresine (çimlenme sonu) geçmesi için kaç gün gerektiğini (germinationDays),
+2. Hasat edilebilir olgunluğa gelmesi için toplamda kaç gün gerektiğini (harvestDays) yaz.
+
+Kesinlikle sadece aşağıdaki formatta saf JSON olarak yanıt ver (Markdown vs ekleme):
+{
+  "germinationDays": 14,
+  "harvestDays": 30
+}
+Gerçekçi, ortalama tam sayılar ver.`;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: "application/json"
+        }
+      })
+    });
+    if (!response.ok) throw new Error("Plant Profile API servisine ulaşılamadı.");
+    const data = await response.json();
+    return JSON.parse(data.candidates[0].content.parts[0].text);
+  } catch (error) {
+    console.error("Plant Profile Error:", error);
+    return { germinationDays: 14, harvestDays: 30 }; // Fallback
+  }
+}
+
 export const AI_INCENTIVES_DB = [
   {
     id: "inc_kosgeb_kadin",

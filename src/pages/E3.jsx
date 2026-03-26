@@ -5,6 +5,37 @@ import { useAuth } from '../auth/AuthContext'
 import { getTodayTasks, toggleTask as toggleTaskService, getTaskHistoryCount, addCustomTasks } from '../services/taskService'
 import { getSortedIncentives, getSeedDocFeedback } from '../services/aiService'
 
+const plantGridData = [
+  { name: 'Safran', w: 5, h: 4, x: 0, y: 0 },
+  { name: 'İstiridye Mantarı', w: 5, h: 4, x: 1, y: 0 },
+  { name: 'Adaçayı', w: 5, h: 4, x: 2, y: 0 },
+  { name: 'Kişniş', w: 5, h: 4, x: 3, y: 0 },
+  { name: 'Tarhun', w: 5, h: 4, x: 4, y: 0 },
+  { name: 'Reyhan', w: 5, h: 4, x: 0, y: 1 },
+  { name: 'Marul', w: 5, h: 4, x: 1, y: 1 },
+  { name: 'Roka', w: 5, h: 4, x: 2, y: 1 },
+  { name: 'Pazı', w: 5, h: 4, x: 3, y: 1 },
+  { name: 'Ispanak', w: 5, h: 4, x: 4, y: 1 },
+  { name: 'Fasulye', w: 6, h: 4, x: 0, y: 2 },
+  { name: 'Biber', w: 6, h: 4, x: 1, y: 2 },
+  { name: 'Biberiye', w: 6, h: 4, x: 2, y: 2 },
+  { name: 'Lavanta', w: 6, h: 4, x: 3, y: 2 },
+  { name: 'Nane', w: 6, h: 4, x: 4, y: 2 },
+  { name: 'Fesleğen', w: 6, h: 4, x: 5, y: 2 },
+  { name: 'Maydanoz', w: 6, h: 4, x: 0, y: 3 },
+  { name: 'Kekik', w: 6, h: 4, x: 1, y: 3 },
+  { name: 'Salatalık', w: 6, h: 4, x: 2, y: 3 },
+  { name: 'Domates', w: 6, h: 4, x: 3, y: 3 },
+  { name: 'Çilek', w: 6, h: 4, x: 4, y: 3 },
+  { name: 'Aloe Vera', w: 6, h: 4, x: 5, y: 3 }
+];
+
+const getPlantPos = (name) => {
+  if (!name) return null;
+  const n = name.trim().toLocaleLowerCase('tr-TR');
+  return plantGridData.find(p => p.name.toLocaleLowerCase('tr-TR') === n) || null;
+}
+
 export default function E3() {
   const { user } = useAuth()
   const [tasks, setTasks] = useState([])
@@ -13,11 +44,14 @@ export default function E3() {
   const [seedDocBusy, setSeedDocBusy] = useState(false)
   const [seedDocResult, setSeedDocResult] = useState(null)
   
+  const plantName = typeof user?.selectedPlant === 'object' ? user?.selectedPlant?.name : user?.selectedPlant;
+  const plantStages = typeof user?.selectedPlant === 'object' ? user?.selectedPlant?.stages : { germinationDays: 14, harvestDays: 30 };
+
   const dayIndex = getTaskHistoryCount(user?.id) || 1
 
   useEffect(() => {
     if (user?.id) {
-      setTasks(getTodayTasks(user.id, user.selectedPlant))
+      setTasks(getTodayTasks(user.id, plantName, plantStages.germinationDays))
     }
   }, [user])
 
@@ -32,7 +66,7 @@ export default function E3() {
     setSeedDocBusy(true);
     setSeedDocResult(null);
     try {
-      const res = await getSeedDocFeedback(user?.selectedPlant, dayIndex, seedDocInput);
+      const res = await getSeedDocFeedback(plantName, dayIndex, seedDocInput);
       setSeedDocResult(res);
       if (res.newTasks && res.newTasks.length > 0) {
         const updatedTasks = addCustomTasks(user.id, res.newTasks);
@@ -54,7 +88,7 @@ export default function E3() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">Dashboard</h1>
-          <p className="mt-1 text-slate-600">{user?.selectedPlant || 'İstiridye Mantarı'} üretiminizin {getTaskHistoryCount(user?.id) || 1}. Günündesiniz.</p>
+          <p className="mt-1 text-slate-600">{plantName || 'İstiridye Mantarı'} üretiminizin {dayIndex}. Günündesiniz.</p>
         </div>
         <div className="flex gap-2">
           <Link to="/e4">
@@ -94,7 +128,7 @@ export default function E3() {
         </div>
         
         <div className="p-6 space-y-4">
-          {getSortedIncentives(user?.selectedPlant).map((inc, i) => (
+          {getSortedIncentives(plantName).map((inc, i) => (
              <div key={inc.id} className={`rounded-xl border ${i < 3 ? 'border-sky-200 bg-sky-50 shadow-sm' : 'border-slate-100 bg-white'} p-4`}>
                <div className="flex items-start gap-3">
                  <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${i < 3 ? 'bg-sky-100 text-sky-600' : 'bg-slate-100 text-slate-600'} text-xl`}>
@@ -220,10 +254,29 @@ export default function E3() {
             <h2 className="text-lg font-bold text-slate-900">Bitki Durumu</h2>
             
             <div className="mt-6 flex flex-col items-center justify-center">
-              <div className="relative flex h-32 w-32 items-center justify-center rounded-full border-8 border-emerald-100 bg-white">
-                <span className="text-5xl">{dayIndex <= 14 ? '🌱' : ((user?.selectedPlant || '').toLowerCase().includes('mantar') ? '🍄' : '🌿')}</span>
+              <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-8 border-emerald-100 bg-white">
+                {dayIndex <= plantStages.germinationDays ? (
+                  <span className="text-5xl">🌱</span>
+                ) : getPlantPos(plantName) ? (
+                  <div className="absolute inset-0">
+                    <img 
+                      src="/plants-grid.jpg" 
+                      alt={plantName}
+                      className="absolute max-w-none"
+                      style={{
+                        width: `${getPlantPos(plantName).w * 135}%`,
+                        height: `${getPlantPos(plantName).h * 135}%`,
+                        left: '-17.5%',
+                        top: '-32%',
+                        transform: `translate(-${getPlantPos(plantName).x * (100 / getPlantPos(plantName).w)}%, -${getPlantPos(plantName).y * (100 / getPlantPos(plantName).h)}%)`,
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <span className="text-5xl">{((plantName || '').toLowerCase().includes('mantar') ? '🍄' : '🌿')}</span>
+                )}
               </div>
-              <p className="mt-4 font-bold text-slate-700">Hasata Son {Math.max(0, 30 - dayIndex)} Gün</p>
+              <p className="mt-4 font-bold text-slate-700">Hasata Son {Math.max(0, plantStages.harvestDays - dayIndex)} Gün</p>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-center text-sm">

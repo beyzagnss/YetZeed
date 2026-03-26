@@ -17,8 +17,8 @@ function saveStoredTasksForUser(userId, userTasks) {
   saveAllTasks(data)
 }
 
-function generateDetailedTasks(plantName, dayIndex) {
-  const isGermination = dayIndex <= 14;
+function generateDetailedTasks(plantName, dayIndex, germinationDays = 14) {
+  const isGermination = dayIndex <= germinationDays;
 
   if (plantName?.toLowerCase()?.includes('mantar')) {
     if (isGermination) {
@@ -65,7 +65,7 @@ function generateDetailedTasks(plantName, dayIndex) {
   ]
 }
 
-export function getTodayTasks(userId, plantName) {
+export function getTodayTasks(userId, plantName, germinationDays = 14) {
   if (!userId) return []
   
   const todayStr = getTodayDateString()
@@ -77,7 +77,7 @@ export function getTodayTasks(userId, plantName) {
   
   if (!userTasks[todayStr]) {
     // Generate new descriptive tasks for today based on the plant and the current day stage
-    userTasks[todayStr] = generateDetailedTasks(plantName, dayIndex)
+    userTasks[todayStr] = generateDetailedTasks(plantName, dayIndex, germinationDays)
     saveStoredTasksForUser(userId, userTasks)
   }
   
