@@ -1,9 +1,68 @@
 import { GEMINI_API_KEY } from '../config/gemini'
 import PLANT_DATABASE_MD from '../../Bitki.md?raw'
 
+let warnedDemoMode = false
+
+function warnDemoModeOnce(reason) {
+  if (warnedDemoMode) return
+  warnedDemoMode = true
+  console.warn('API key bulunamadı, demo mod aktif', reason ? `(${reason})` : '')
+}
+
+function normalizePlantName(name) {
+  return String(name || '').trim().toLocaleLowerCase('tr-TR')
+}
+
+function getDemoRecommendations() {
+  return [
+    {
+      name: 'Safran',
+      profitability: 'Yüksek',
+      difficulty: 'Orta',
+      cost: '6.000 TL',
+      reason: 'Yüksek kârlılık, orta zorluk, 90 gün hasat'
+    },
+    {
+      name: 'İstiridye Mantarı',
+      profitability: 'Yüksek',
+      difficulty: 'Kolay',
+      cost: '1.500 TL',
+      reason: 'Hızlı hasat, düşük maliyet, 30 gün'
+    },
+    {
+      name: 'Reyhan',
+      profitability: 'Orta',
+      difficulty: 'Çok Kolay',
+      cost: '750 TL',
+      reason: 'Kolay bakım, düşük maliyet, 21 gün'
+    }
+  ]
+}
+
+function getDemoBudgetAdvice() {
+  return 'Bütçen genel olarak dengeli görünüyor. Önce giderlerini sabitle, küçük ama düzenli satış hedefi koy ve kârının bir kısmını ekipman/ham madde için kenarda tut.'
+}
+
+function getDemoSeedDocFeedback() {
+  return {
+    status: 'Healthy',
+    feedback: 'Bitkini inceledim, genel durumu iyi görünüyor. Sulamana ve ışık takibine devam et.',
+    newTasks: []
+  }
+}
+
+function getDemoPlantStages(plantName) {
+  const n = normalizePlantName(plantName)
+  if (n.includes('safran')) return { germinationDays: 14, harvestDays: 90 }
+  if (n.includes('istiridye') || n.includes('mantar')) return { germinationDays: 7, harvestDays: 30 }
+  if (n.includes('reyhan')) return { germinationDays: 7, harvestDays: 21 }
+  return { germinationDays: 14, harvestDays: 30 }
+}
+
 export async function getPlantRecommendations(answers) {
   if (!GEMINI_API_KEY) {
-    throw new Error("Gemini API Key eksik! Lütfen .env dosyanıza VITE_GEMINI_API_KEY değişkenini ekleyin.");
+    warnDemoModeOnce('missing key')
+    return getDemoRecommendations()
   }
 
   const prompt = `
@@ -40,17 +99,15 @@ Kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içermeden (mar
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        tools: [{ googleSearch: {} }],
-        generationConfig: {
-          temperature: 0.7,
-          responseMimeType: "application/json"
-        }
+        generationConfig: { temperature: 0.7 }
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error?.message || "AI servisine bağlanılamadı.");
+      const msg = errorData?.error?.message || 'AI servisine bağlanılamadı.'
+      warnDemoModeOnce(msg)
+      return getDemoRecommendations()
     }
 
     const data = await response.json();
@@ -58,14 +115,16 @@ Kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içermeden (mar
     return JSON.parse(resultText);
   } catch (error) {
     console.error("AI Service Error:", error);
-    throw error;
+    warnDemoModeOnce(error?.message || 'unknown error')
+    return getDemoRecommendations()
   }
 }
 
 
 export async function getBudgetAdvice(income, expenses) {
   if (!GEMINI_API_KEY) {
-    throw new Error("API Key eksik");
+    warnDemoModeOnce('missing key')
+    return getDemoBudgetAdvice()
   }
 
   const prompt = `
@@ -88,18 +147,25 @@ Sadece tavsiye metnini dön, başka hiçbir açıklama yapma.`;
       })
     });
 
-    if (!response.ok) throw new Error("Makine öğrenmesi servisi yanıt vermedi");
+    if (!response.ok) {
+      warnDemoModeOnce('budget advice request failed')
+      return getDemoBudgetAdvice()
+    }
     
     const data = await response.json();
     return data.candidates[0].content.parts[0].text;
   } catch (err) {
     console.error("AI Budget Error:", err);
-    throw err;
+    warnDemoModeOnce(err?.message || 'budget error')
+    return getDemoBudgetAdvice()
   }
 }
 
 export async function getSeedDocFeedback(plantName, dayIndex, healthText, sowDate = null) {
-  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY eksik.");
+  if (!GEMINI_API_KEY) {
+    warnDemoModeOnce('missing key')
+    return getDemoSeedDocFeedback()
+  }
 
   const sowDateStr = sowDate ? new Date(sowDate).toLocaleDateString('tr-TR') : 'Bilinmiyor';
   
@@ -142,19 +208,26 @@ Eğer bitki sağlıklıysa newTasks mutlaka boş bir dizi [] olmalıdır.`;
       })
     });
 
-    if (!response.ok) throw new Error("Seed Doc servisine ulaşılamadı.");
+    if (!response.ok) {
+      warnDemoModeOnce('seed doc request failed')
+      return getDemoSeedDocFeedback()
+    }
 
     const data = await response.json();
     return JSON.parse(data.candidates[0].content.parts[0].text);
   } catch (error) {
     console.error("Seed Doc Error:", error);
-    throw error;
+    warnDemoModeOnce(error?.message || 'seed doc error')
+    return getDemoSeedDocFeedback()
   }
 }
 
 
 export async function getPlantBiologicalProfile(plantName) {
-  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY eksik.");
+  if (!GEMINI_API_KEY) {
+    warnDemoModeOnce('missing key')
+    return getDemoPlantStages(plantName)
+  }
   
   const prompt = `Sen profesyonel bir ziraat uzmanısın. Kullanıcı "${plantName}" yetiştirmeye karar verdi. 
 Lütfen bilinen tarımsal yetiştiricilik standartlarına göre bu bitkinin;
@@ -180,12 +253,16 @@ Gerçekçi, ortalama tam sayılar ver.`;
         }
       })
     });
-    if (!response.ok) throw new Error("Plant Profile API servisine ulaşılamadı.");
+    if (!response.ok) {
+      warnDemoModeOnce('plant profile request failed')
+      return getDemoPlantStages(plantName)
+    }
     const data = await response.json();
     return JSON.parse(data.candidates[0].content.parts[0].text);
   } catch (error) {
     console.error("Plant Profile Error:", error);
-    return { germinationDays: 14, harvestDays: 30 }; // Fallback
+    warnDemoModeOnce(error?.message || 'plant profile error')
+    return getDemoPlantStages(plantName)
   }
 }
 

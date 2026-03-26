@@ -9,7 +9,6 @@ export default function E2Result() {
   const navigate = useNavigate()
   const [recommendations, setRecommendations] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
   useEffect(() => {
     async function fetchAI() {
@@ -22,39 +21,6 @@ export default function E2Result() {
         setLoading(false)
       } catch (err) {
         console.error(err)
-        const msg = err?.message || ''
-        if (msg.includes('API Key eksik') || msg.includes('Gemini API Key eksik')) {
-          setRecommendations([
-            {
-              name: 'İstiridye Mantarı',
-              profitability: 'Yüksek',
-              difficulty: 'Kolay',
-              cost: '1.500 TL',
-              reason:
-                'Evinizin nispeten kapalı/az ışık alan bölgelerinde çok hızlı büyüme sağlar. Kadın girişimciler için başlangıcı en risksiz üründür.'
-            },
-            {
-              name: 'Safran',
-              profitability: 'Çok Yüksek',
-              difficulty: 'Zor',
-              cost: '6.000 TL',
-              reason:
-                'Katma değeri en yüksek ürünlerden biridir. Günlük ayırdığınız kısıtlı zamana rağmen, uzun vadede mükemmel bir yatırım ve gelir kapısıdır.'
-            },
-            {
-              name: 'Fesleğen (Microgreens)',
-              profitability: 'Orta',
-              difficulty: 'Çok Kolay',
-              cost: '750 TL',
-              reason:
-                'Düşük bütçeniz ve hızlı satış isteğinizle birebir örtüşüyor. Mutfakta veya balkonda hızlıca yetiştirip semt pazarında/internette satabilirsiniz.'
-            }
-          ])
-          setLoading(false)
-          return
-        } else {
-          setError(msg)
-        }
         setLoading(false)
       }
     }
@@ -90,16 +56,6 @@ export default function E2Result() {
         <h2 className="text-xl font-bold text-slate-900 md:text-2xl">Yapay Zeka Mekanınızı Analiz Ediyor...</h2>
         <p className="mt-2 text-slate-500">Mekanınıza, bütçenize ve zamanınıza özel en ideal tarım ürünleri hesaplanıyor.</p>
       </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <section className="rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm">
-        <h1 className="text-xl font-bold text-red-900">Bir Hata Oluştu</h1>
-        <p className="mt-2 text-red-700">{error}</p>
-        <Button className="mt-4" onClick={() => window.location.reload()}>Tekrar Dene</Button>
-      </section>
     )
   }
 

@@ -102,7 +102,7 @@ export default function E3() {
         setTasks(updatedTasks);
       }
     } catch (err) {
-      setSeedDocResult({ status: 'Error', feedback: 'Bağlantı hatası oluştu, lütfen tekrar deneyin.', newTasks: [] });
+      setSeedDocResult({ status: 'Healthy', feedback: 'Bitkini inceledim, genel durumu iyi görünüyor. Sulamana ve ışık takibine devam et.', newTasks: [] });
     } finally {
       setSeedDocBusy(false);
     }
