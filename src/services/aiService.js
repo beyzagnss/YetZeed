@@ -9,25 +9,27 @@ export async function getPlantRecommendations(answers) {
   const prompt = `
 Sen, şehirli kadın girişimcilere destek olan uzman bir dikey tarım ziraat mühendisi ve girişimcilik danışmanısın.
 Aşağıda bir kullanıcının mekan, bütçe, zaman ve hedeflerine dair verdiği cevapların JSON formatı bulunuyor.
-Ayrıca sistemimizde yer alan temel bitki veritabanını (aşağıda) baz almalısın. FAKAT bu veritabanı eski olabilir.
-Lütfen Google Search (websearch) özelliğini KESİNLİKLE DOĞRUDAN kullanarak bugünün güncel verilerini (özellikle son 3 ayın tarım hibe/destekleri, KOSGEB/TKDK teşvikleri ve enflasyon/güncel tohum-ekipman fiyatlarını) araştır. Veritabanındaki standart bitki ihtiyaçları ile internetteki güncel ekonomik verileri harmanla.
 
-Elde ettiğin en güncel fiyatlara, teşviklere ve kullanıcının cevaplarına dayanarak, kullanıcının evinde/alanında yetiştirebileceği en uygun 3 ürünü (örn: İstiridye Mantarı, Safran, Fesleğen vb.) öner.
+Sistemimizde yer alan kapsamlı bitki veritabanı aşağıdadır. Bu veritabanında 20'den fazla bitki/ürün bulunmakta olup sen bunları kullanıcının profiline göre DEĞERLENDİRMELİSİN:
+${PLANT_DATABASE_MD}
 
 Kullanıcı Cevapları:
 ${JSON.stringify(answers, null, 2)}
 
-Sistem Bitki Veritabanı Referansı (Maliyet/Işık/Su/Büyüme Şartları):
-${PLANT_DATABASE_MD}
+Görevin:
+1. Kullanıcının bütçesine, mevcut alanına, zamanına, pazarlama hedeflerine ve teknik bilgi düzeyine göre yukarıdaki veritabanından EN UYGUN 3 ile 5 arasında ürün seç. 
+2. Rekabetçi kâr potansiyeli, düşük bakım, hızlı hasat veya pazar değeri kriterlerini kullanıcının cevaplarına göre özelleştir.
+3. Her öneri için güncel Türkiye piyasası bilgisini (özellikle 2025 fiyatları, KOSGEB/TKDK teşvikleri) kullan.
+4. Seçim yaparken VERİTABANINDAKİ TÜM BİTKİLERİ DEĞERLENDİR. Sadece Safran, Mantar veya Fesleğen önerme; kullanıcının profiline en uygun olanları seç.
 
-Lütfen kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içermeden (markdown formatı kullanmadan) doğrudan JSON dizisi olarak yanıt ver:
+Kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içermeden (markdown formatı kullanmadan) doğrudan JSON dizisi olarak yanıt ver:
 [
   {
-    "name": "Ürün Adı",
+    "name": "Ürün Adı (veritabanındaki bitki adını kullan)",
     "profitability": "Yüksek / Orta / Düşük",
-    "difficulty": "Kolay / Orta / Zor",
-    "cost": "Tahmini GÜNCEL Başlangıç Maliyeti",
-    "reason": "Neden bu ürünü öneriyorsun? (İnternetten bulduğun çok GÜNCEL trendleri, son 3 aydaki maliyet fiyatlarını veya güncel spesifik teşvikleri mutlaka belirterek kullanıcının hedeflerine bağla.)"
+    "difficulty": "Çok Kolay / Kolay / Orta / Zor",
+    "cost": "Tahmini başlangıç maliyeti (TL cinsinden veritabanındaki verileri baz al)",
+    "reason": "Neden bu ürünü öneriyorsun? Kullanıcının bütçesi, alanı, zamanı ve hedefleriyle nasıl uyuşuyor? Spesifik ve kısa açıkla."
   }
 ]
 `;
@@ -59,6 +61,7 @@ Lütfen kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içerme
     throw error;
   }
 }
+
 
 export async function getBudgetAdvice(income, expenses) {
   if (!GEMINI_API_KEY) {
