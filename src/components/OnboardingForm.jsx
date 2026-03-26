@@ -7,7 +7,7 @@ import Button from './ui/Button'
 export default function OnboardingForm() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState({})
-  const { completeOnboarding } = useAuth()
+  const { completeOnboarding, user } = useAuth()
   const navigate = useNavigate()
 
   const q = QUESTIONS[currentIndex]
