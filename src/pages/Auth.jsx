@@ -115,8 +115,15 @@ export default function Auth() {
   }
 
   return (
-    <section className="mx-auto max-w-xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-200 bg-slate-50 p-6">
+    <section className="mx-auto max-w-xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm relative">
+      <button 
+        onClick={() => navigate('/e1')}
+        className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors p-2"
+        title="Karşılama Ekranına Dön"
+      >
+        <span className="text-xl font-bold">✕</span>
+      </button>
+      <div className="border-b border-slate-200 bg-slate-50 p-6 pt-8">
         <h1 className="text-2xl font-extrabold tracking-tight">
           {mode === 'signup' ? 'Hesap Oluştur' : mode === 'signin' ? 'Giriş Yap' : 'Şifremi Unuttum'}
         </h1>
