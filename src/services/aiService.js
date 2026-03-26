@@ -1,4 +1,5 @@
 import { GEMINI_API_KEY } from '../config/gemini'
+import PLANT_DATABASE_MD from '../../Bitki.md?raw'
 
 export async function getPlantRecommendations(answers) {
   if (!GEMINI_API_KEY) {
@@ -8,10 +9,16 @@ export async function getPlantRecommendations(answers) {
   const prompt = `
 Sen, şehirli kadın girişimcilere destek olan uzman bir dikey tarım ziraat mühendisi ve girişimcilik danışmanısın.
 Aşağıda bir kullanıcının mekan, bütçe, zaman ve hedeflerine dair verdiği cevapların JSON formatı bulunuyor.
-Lütfen bu cevapları analiz et ve bu kişinin evinde/alanında yetiştirebileceği en uygun 3 dikey tarım ürününü (örn: İstiridye Mantarı, Pran, Safran, Fesleğen, Çilek, Microgreens vb.) öner.
+Ayrıca sistemimizde yer alan temel bitki veritabanını (aşağıda) baz almalısın. FAKAT bu veritabanı eski olabilir.
+Lütfen Google Search (websearch) özelliğini KESİNLİKLE DOĞRUDAN kullanarak bugünün güncel verilerini (özellikle son 3 ayın tarım hibe/destekleri, KOSGEB/TKDK teşvikleri ve enflasyon/güncel tohum-ekipman fiyatlarını) araştır. Veritabanındaki standart bitki ihtiyaçları ile internetteki güncel ekonomik verileri harmanla.
+
+Elde ettiğin en güncel fiyatlara, teşviklere ve kullanıcının cevaplarına dayanarak, kullanıcının evinde/alanında yetiştirebileceği en uygun 3 ürünü (örn: İstiridye Mantarı, Safran, Fesleğen vb.) öner.
 
 Kullanıcı Cevapları:
 ${JSON.stringify(answers, null, 2)}
+
+Sistem Bitki Veritabanı Referansı (Maliyet/Işık/Su/Büyüme Şartları):
+${PLANT_DATABASE_MD}
 
 Lütfen kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içermeden (markdown formatı kullanmadan) doğrudan JSON dizisi olarak yanıt ver:
 [
@@ -19,8 +26,8 @@ Lütfen kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içerme
     "name": "Ürün Adı",
     "profitability": "Yüksek / Orta / Düşük",
     "difficulty": "Kolay / Orta / Zor",
-    "cost": "Tahmini Başlangıç Maliyeti",
-    "reason": "Neden bu ürünü öneriyorsun? (Kullanıcının cevaplarına özel bir tavsiye)"
+    "cost": "Tahmini GÜNCEL Başlangıç Maliyeti",
+    "reason": "Neden bu ürünü öneriyorsun? (İnternetten bulduğun çok GÜNCEL trendleri, son 3 aydaki maliyet fiyatlarını veya güncel spesifik teşvikleri mutlaka belirterek kullanıcının hedeflerine bağla.)"
   }
 ]
 `;
@@ -31,6 +38,7 @@ Lütfen kesinlikle aşağıdaki JSON formatında ve başka hiçbir metin içerme
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
+        tools: [{ googleSearch: {} }],
         generationConfig: {
           temperature: 0.7,
           responseMimeType: "application/json"
