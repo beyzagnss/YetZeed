@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
-import Button from '../components/ui/Button'
 import { getPlantRecommendations, getPlantBiologicalProfile } from '../services/aiService'
 import { useAuth } from '../auth/AuthContext'
 
