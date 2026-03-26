@@ -37,15 +37,24 @@ const getPlantPos = (name) => {
 }
 
 export default function E3() {
-  const { user } = useAuth()
+  const { user, saveUserPlant } = useAuth()
   const [tasks, setTasks] = useState([])
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [seedDocInput, setSeedDocInput] = useState('')
   const [seedDocBusy, setSeedDocBusy] = useState(false)
   const [seedDocResult, setSeedDocResult] = useState(null)
   
-  const plantName = typeof user?.selectedPlant === 'object' ? user?.selectedPlant?.name : user?.selectedPlant;
-  const plantStages = typeof user?.selectedPlant === 'object' ? user?.selectedPlant?.stages : { germinationDays: 14, harvestDays: 30 };
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editNameValue, setEditNameValue] = useState('')
+  
+  const plantNameObj = typeof user?.selectedPlant === 'object' 
+    ? user?.selectedPlant 
+    : { name: user?.selectedPlant, stages: { germinationDays: 14, harvestDays: 30 } };
+    
+  const plantName = plantNameObj?.name;
+  const customPlantName = plantNameObj?.customName;
+  const displayName = customPlantName || plantName || 'İstiridye Mantarı';
+  const plantStages = plantNameObj?.stages || { germinationDays: 14, harvestDays: 30 };
 
   const dayIndex = getTaskHistoryCount(user?.id) || 1
 
@@ -60,6 +69,13 @@ export default function E3() {
       setTasks(toggleTaskService(user.id, id))
     }
   }
+
+  const handleNameSave = () => {
+    if (editNameValue.trim()) {
+      saveUserPlant({ ...plantNameObj, customName: editNameValue.trim() });
+    }
+    setIsEditingName(false);
+  };
 
   const handleSeedDoc = async () => {
     if (!seedDocInput.trim()) return;
@@ -88,7 +104,9 @@ export default function E3() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">Dashboard</h1>
-          <p className="mt-1 text-slate-600">{plantName || 'İstiridye Mantarı'} üretiminizin {dayIndex}. Günündesiniz.</p>
+          <p className="mt-1 text-slate-600">
+            <span className="font-semibold text-emerald-800">{displayName}</span> üretiminizin {dayIndex}. Günündesiniz.
+          </p>
         </div>
         <div className="flex gap-2">
           <Link to="/e4">
@@ -251,9 +269,37 @@ export default function E3() {
         {/* Right Column (Status) */}
         <div className="space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-900">Bitki Durumu</h2>
+            <div className="flex items-center justify-between">
+               <h2 className="text-lg font-bold text-slate-900">Bitki Durumu</h2>
+            </div>
+               
+            <div className="mt-2 mb-4 text-center flex flex-col items-center justify-center">
+              {isEditingName ? (
+                <div className="flex items-center justify-center gap-2 mt-1">
+                  <input 
+                    type="text" 
+                    value={editNameValue} 
+                    onChange={e => setEditNameValue(e.target.value)}
+                    className="border border-slate-300 rounded-lg px-3 py-1 text-sm text-center w-40 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    autoFocus
+                    onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
+                  />
+                  <button onClick={handleNameSave} className="text-emerald-700 font-bold text-xs bg-emerald-50 px-2 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors">Kaydet</button>
+                  <button onClick={() => setIsEditingName(false)} className="text-slate-500 text-xs hover:text-slate-700 transition-colors">İptal</button>
+                </div>
+              ) : (
+                <div 
+                  className="group flex items-center justify-center gap-2 cursor-pointer mt-1" 
+                  onClick={() => { setEditNameValue(displayName); setIsEditingName(true); }}
+                  title="İsmi değiştirmek için tıklayın"
+                >
+                  <h3 className="text-base font-bold text-emerald-800 border-b border-dashed border-emerald-300 group-hover:border-emerald-500 transition-colors">{displayName}</h3>
+                  <span className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] border border-slate-200 rounded px-1.5 py-0.5 bg-slate-50">Düzenle ✎</span>
+                </div>
+              )}
+            </div>
             
-            <div className="mt-6 flex flex-col items-center justify-center">
+            <div className="mt-2 flex flex-col items-center justify-center">
               <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-8 border-emerald-100 bg-white">
                 {dayIndex <= plantStages.germinationDays ? (
                   <span className="text-5xl">🌱</span>
