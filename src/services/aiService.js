@@ -98,26 +98,34 @@ Sadece tavsiye metnini dön, başka hiçbir açıklama yapma.`;
   }
 }
 
-export async function getSeedDocFeedback(plantName, dayIndex, healthText) {
+export async function getSeedDocFeedback(plantName, dayIndex, healthText, sowDate = null) {
   if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY eksik.");
-  
-  const prompt = `Sen profesyonel bir tarım ziraat mühendisi yapay zeka doktoru olan "Seed Doc" asistanısın. 
-Kullanıcı şu bitkiyi yetiştiriyor: "${plantName}" 
-Sistemimizde ${dayIndex}. gününde (not: ilk 14 gün çimlenme/kuluçka evresi kabul edilir).
 
-Kullanıcının bugün bitkisiyle ilgili gözlemi şu şekilde:
+  const sowDateStr = sowDate ? new Date(sowDate).toLocaleDateString('tr-TR') : 'Bilinmiyor';
+  
+  const prompt = `Sen YetZeed uygulamasının bitki sağlık asistanı "Seed Doc"sun.
+Kullanıcının seçtiği bitki: ${plantName || 'Bilinmiyor'}
+Bitkinin ekim tarihi: ${sowDateStr}
+Bugün kaçıncı gün: ${dayIndex}. gün
+
+Kullanıcı sana bitkisinin bugünkü durumunu anlattı:
 "${healthText}"
 
-Lütfen bu gözlemi bilimsel olarak analiz et. Eğer hastalıklı, riskli bir durum (küf, sararma, çürüme vb.) varsa, durumunu "Attention" yap ve kullanıcının bugünkü görev listesine eklenecek kısa net kurtarma eylemlerini (newTasks içine string dizisi olarak) yaz. Eğer iyiyse status "Healthy" koy ve motive edici kısa bir geri bildirim yaz. Uzun destanlar yazma, direkt teşhisi söyle.
+Görevin:
+1. Bu durumun ${dayIndex}. gün için normal olup olmadığını söyle
+2. Sağlıklıysa tebrik et ve yarın ne beklemesi gerektiğini anlat (1-2 cümle)
+3. Sağlıklı değilse NUMARALI ADIMLARLA müdahale planı ver (en fazla 4 adım)
+4. Yanıtın kısa, net ve Türkçe olsun
+5. Eğer acil müdahale gerekiyorsa, newTasks dizisine o günkü görev listesine eklenecek kısa aksiyon cümleleri yaz
 
 Kesinlikle sadece aşağıdaki formatta saf JSON olarak yanıt ver (Markdown tırnakları veya başka metin asla ekleme):
 {
   "status": "Healthy" | "Attention",
   "feedback": "Kullanıcıya vereceğin bilimsel teşhis ve şefkatli uzman tavsiyesi",
   "newTasks": [
-    "Hemen ortamı havalandır ve nemi %70'e düşür",
-    "Siyah lekeli kısımları ayır"
-  ] 
+    "Acil görev 1 (sadece Attention durumunda doldur)",
+    "Acil görev 2"
+  ]
 }
 Eğer bitki sağlıklıysa newTasks mutlaka boş bir dizi [] olmalıdır.`;
 
@@ -143,6 +151,7 @@ Eğer bitki sağlıklıysa newTasks mutlaka boş bir dizi [] olmalıdır.`;
     throw error;
   }
 }
+
 
 export async function getPlantBiologicalProfile(plantName) {
   if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY eksik.");

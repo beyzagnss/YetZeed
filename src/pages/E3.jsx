@@ -94,7 +94,8 @@ export default function E3() {
     setSeedDocBusy(true);
     setSeedDocResult(null);
     try {
-      const res = await getSeedDocFeedback(plantName, dayIndex, seedDocInput);
+      const sowDate = plantNameObj?.sowDate || null;
+      const res = await getSeedDocFeedback(plantName, dayIndex, seedDocInput, sowDate);
       setSeedDocResult(res);
       if (res.newTasks && res.newTasks.length > 0) {
         const updatedTasks = addCustomTasks(user.id, res.newTasks);
