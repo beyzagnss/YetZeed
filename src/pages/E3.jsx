@@ -1,19 +1,28 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from '../components/ui/Button'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
+import { getTodayTasks, toggleTask as toggleTaskService, getTaskHistoryCount } from '../services/taskService'
 
 export default function E3() {
-  const [tasks, setTasks] = useState([
-    { id: 1, text: 'Sabah nem seviyesini ölç (%85 ideal)', done: false, time: '08:00' },
-    { id: 2, text: 'Öğle saatlerinde ortamı havalandır (15dk)', done: true, time: '13:00' },
-    { id: 3, text: 'Mantarların gelişimini gözlemle ve not al', done: false, time: '19:00' }
-  ])
+  const { user } = useAuth()
+  const [tasks, setTasks] = useState([])
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const toggleTask = (id) => setTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done } : t))
+  useEffect(() => {
+    if (user?.id) {
+      setTasks(getTodayTasks(user.id, user.selectedPlant))
+    }
+  }, [user])
+
+  const toggleTask = (id) => {
+    if (user?.id) {
+      setTasks(toggleTaskService(user.id, id))
+    }
+  }
   
   const completedCount = tasks.filter(t => t.done).length;
-  const progress = Math.round((completedCount / tasks.length) * 100);
+  const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -21,7 +30,7 @@ export default function E3() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">Dashboard</h1>
-          <p className="mt-1 text-slate-600">İstiridye Mantarı üretiminizin 12. Günündesiniz.</p>
+          <p className="mt-1 text-slate-600">{user?.selectedPlant || 'İstiridye Mantarı'} üretiminizin {getTaskHistoryCount(user?.id) || 1}. Günündesiniz.</p>
         </div>
         <div className="flex gap-2">
           <Link to="/e4">

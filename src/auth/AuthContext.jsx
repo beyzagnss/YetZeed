@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
-import { getCurrentUser, setOnboardingCompleted, signIn, signOut, signUp } from './authService'
+import { getCurrentUser, setOnboardingCompleted, signIn, signOut, signUp, setSelectedPlant } from './authService'
 
 const AuthContext = createContext(null)
 
@@ -27,6 +27,12 @@ export function AuthProvider({ children }) {
       completeOnboarding: async () => {
         if (!user?.id) return null
         const updated = setOnboardingCompleted(user.id, true)
+        setUser(updated)
+        return updated
+      },
+      saveUserPlant: async (plantDetails) => {
+        if (!user?.id) return null
+        const updated = setSelectedPlant(user.id, plantDetails)
         setUser(updated)
         return updated
       }

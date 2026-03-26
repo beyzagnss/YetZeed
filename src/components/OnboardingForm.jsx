@@ -39,8 +39,8 @@ export default function OnboardingForm() {
   const onNext = () => {
     if (!canProceed()) return
     if (isLast) {
-      localStorage.setItem('yetzeed_answers', JSON.stringify(answers))
-      completeOnboarding()
+      localStorage.setItem(`yetzeed_answers_${user?.id || 'guest'}`, JSON.stringify(answers))
+      // Removed completeOnboarding() here. We'll do it in E2Result when they pick a plant.
       navigate('/e2-sonuc')
     } else {
       setCurrentIndex((p) => p + 1)

@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import { getPlantRecommendations } from '../services/aiService'
+import { useAuth } from '../auth/AuthContext'
 
 export default function E2Result() {
+  const { user, completeOnboarding, saveUserPlant } = useAuth()
+  const navigate = useNavigate()
   const [recommendations, setRecommendations] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -11,7 +14,7 @@ export default function E2Result() {
   useEffect(() => {
     async function fetchAI() {
       try {
-        const stored = localStorage.getItem('yetzeed_answers')
+        const stored = localStorage.getItem(`yetzeed_answers_${user?.id || 'guest'}`)
         const answers = stored ? JSON.parse(stored) : {}
         
         const data = await getPlantRecommendations(answers)
@@ -55,7 +58,13 @@ export default function E2Result() {
     }
     
     fetchAI()
-  }, [])
+  }, [user])
+
+  const handleSelectPlant = async (item) => {
+    await saveUserPlant(item.name)
+    await completeOnboarding()
+    navigate('/e3')
+  }
 
   if (loading) {
     return (
@@ -117,9 +126,9 @@ export default function E2Result() {
               <p className="mt-1 text-sm leading-relaxed text-slate-700">{item.reason}</p>
             </div>
 
-            <Link to="/e3" className="mt-6 block">
-              <Button className="w-full">Yetiştirmeye Başla</Button>
-            </Link>
+            <Button className="mt-6 w-full" onClick={() => handleSelectPlant(item)}>
+              Yetiştirmeye Başla
+            </Button>
           </div>
         ))}
       </div>

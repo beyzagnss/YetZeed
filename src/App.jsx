@@ -20,20 +20,7 @@ export default function App() {
           <div className="mx-auto flex max-w-5xl items-center justify-between p-4">
             <div className="text-lg font-semibold tracking-tight">YetZeed</div>
             <div className="flex items-center gap-4">
-              <nav className="hidden items-center gap-3 text-sm text-slate-700 sm:flex">
-                <Link className="hover:underline" to="/e1">
-                  E1
-                </Link>
-                <Link className="hover:underline" to="/e2">
-                  E2
-                </Link>
-                <Link className="hover:underline" to="/e3">
-                  E3
-                </Link>
-                <Link className="hover:underline" to="/e4">
-                  E4
-                </Link>
-              </nav>
+
 
               {isAuthed ? (
                 <div className="flex items-center gap-2">
@@ -56,13 +43,13 @@ export default function App() {
         <main className="mx-auto max-w-5xl px-6 pb-16 pt-6">
           <Routes>
             <Route path="/" element={<Navigate to="/e1" replace />} />
-            <Route path="/e1" element={<E1 />} />
+            <Route path="/e1" element={isAuthed && user?.onboardingCompleted ? <Navigate to="/e3" replace /> : <E1 />} />
             <Route path="/auth" element={<Auth />} />
             <Route
               path="/e2"
               element={
                 <RequireAuth>
-                  <E2 />
+                  {user?.onboardingCompleted ? <Navigate to="/e3" replace /> : <E2 />}
                 </RequireAuth>
               }
             />
@@ -70,7 +57,7 @@ export default function App() {
               path="/e2-sonuc"
               element={
                 <RequireAuth>
-                  <E2Result />
+                  {user?.onboardingCompleted ? <Navigate to="/e3" replace /> : <E2Result />}
                 </RequireAuth>
               }
             />

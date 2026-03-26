@@ -16,7 +16,7 @@ export function getCurrentUser() {
   const users = getUsers()
   const user = users.find((u) => u.id === session.userId) || null
   return user
-    ? { id: user.id, email: user.email, onboardingCompleted: Boolean(user.onboardingCompleted) }
+    ? { id: user.id, email: user.email, onboardingCompleted: Boolean(user.onboardingCompleted), selectedPlant: user.selectedPlant || null }
     : null
 }
 
@@ -38,7 +38,30 @@ export function setOnboardingCompleted(userId, value) {
   return {
     id: updated.id,
     email: updated.email,
-    onboardingCompleted: Boolean(updated.onboardingCompleted)
+    onboardingCompleted: Boolean(updated.onboardingCompleted),
+    selectedPlant: updated.selectedPlant || null
+  }
+}
+
+export function setSelectedPlant(userId, plantDetails) {
+  const users = getUsers()
+  const idx = users.findIndex((u) => u.id === userId)
+  if (idx === -1) return null
+
+  const updated = {
+    ...users[idx],
+    selectedPlant: plantDetails
+  }
+
+  const next = [...users]
+  next[idx] = updated
+  setUsers(next)
+
+  return {
+    id: updated.id,
+    email: updated.email,
+    onboardingCompleted: Boolean(updated.onboardingCompleted),
+    selectedPlant: updated.selectedPlant || null
   }
 }
 
@@ -63,7 +86,7 @@ export function signUp({ email, password }) {
 
   setUsers([...users, user])
   setSession({ userId: user.id, createdAt: nowIso() })
-  return { id: user.id, email: user.email, onboardingCompleted: false }
+  return { id: user.id, email: user.email, onboardingCompleted: false, selectedPlant: null }
 }
 
 export function signIn({ email, password }) {
@@ -78,7 +101,8 @@ export function signIn({ email, password }) {
   return {
     id: user.id,
     email: user.email,
-    onboardingCompleted: Boolean(user.onboardingCompleted)
+    onboardingCompleted: Boolean(user.onboardingCompleted),
+    selectedPlant: user.selectedPlant || null
   }
 }
 
