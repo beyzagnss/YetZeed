@@ -95,6 +95,52 @@ Sadece tavsiye metnini dön, başka hiçbir açıklama yapma.`;
   }
 }
 
+export async function getSeedDocFeedback(plantName, dayIndex, healthText) {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY eksik.");
+  
+  const prompt = `Sen profesyonel bir tarım ziraat mühendisi yapay zeka doktoru olan "Seed Doc" asistanısın. 
+Kullanıcı şu bitkiyi yetiştiriyor: "${plantName}" 
+Sistemimizde ${dayIndex}. gününde (not: ilk 14 gün çimlenme/kuluçka evresi kabul edilir).
+
+Kullanıcının bugün bitkisiyle ilgili gözlemi şu şekilde:
+"${healthText}"
+
+Lütfen bu gözlemi bilimsel olarak analiz et. Eğer hastalıklı, riskli bir durum (küf, sararma, çürüme vb.) varsa, durumunu "Attention" yap ve kullanıcının bugünkü görev listesine eklenecek kısa net kurtarma eylemlerini (newTasks içine string dizisi olarak) yaz. Eğer iyiyse status "Healthy" koy ve motive edici kısa bir geri bildirim yaz. Uzun destanlar yazma, direkt teşhisi söyle.
+
+Kesinlikle sadece aşağıdaki formatta saf JSON olarak yanıt ver (Markdown tırnakları veya başka metin asla ekleme):
+{
+  "status": "Healthy" | "Attention",
+  "feedback": "Kullanıcıya vereceğin bilimsel teşhis ve şefkatli uzman tavsiyesi",
+  "newTasks": [
+    "Hemen ortamı havalandır ve nemi %70'e düşür",
+    "Siyah lekeli kısımları ayır"
+  ] 
+}
+Eğer bitki sağlıklıysa newTasks mutlaka boş bir dizi [] olmalıdır.`;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          responseMimeType: "application/json"
+        }
+      })
+    });
+
+    if (!response.ok) throw new Error("Seed Doc servisine ulaşılamadı.");
+
+    const data = await response.json();
+    return JSON.parse(data.candidates[0].content.parts[0].text);
+  } catch (error) {
+    console.error("Seed Doc Error:", error);
+    throw error;
+  }
+}
+
 export const AI_INCENTIVES_DB = [
   {
     id: "inc_kosgeb_kadin",

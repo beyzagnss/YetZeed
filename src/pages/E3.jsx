@@ -2,13 +2,18 @@ import { useState, useEffect } from 'react'
 import Button from '../components/ui/Button'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { getTodayTasks, toggleTask as toggleTaskService, getTaskHistoryCount } from '../services/taskService'
-import { getSortedIncentives } from '../services/aiService'
+import { getTodayTasks, toggleTask as toggleTaskService, getTaskHistoryCount, addCustomTasks } from '../services/taskService'
+import { getSortedIncentives, getSeedDocFeedback } from '../services/aiService'
 
 export default function E3() {
   const { user } = useAuth()
   const [tasks, setTasks] = useState([])
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [seedDocInput, setSeedDocInput] = useState('')
+  const [seedDocBusy, setSeedDocBusy] = useState(false)
+  const [seedDocResult, setSeedDocResult] = useState(null)
+  
+  const dayIndex = getTaskHistoryCount(user?.id) || 1
 
   useEffect(() => {
     if (user?.id) {
@@ -21,6 +26,24 @@ export default function E3() {
       setTasks(toggleTaskService(user.id, id))
     }
   }
+
+  const handleSeedDoc = async () => {
+    if (!seedDocInput.trim()) return;
+    setSeedDocBusy(true);
+    setSeedDocResult(null);
+    try {
+      const res = await getSeedDocFeedback(user?.selectedPlant, dayIndex, seedDocInput);
+      setSeedDocResult(res);
+      if (res.newTasks && res.newTasks.length > 0) {
+        const updatedTasks = addCustomTasks(user.id, res.newTasks);
+        setTasks(updatedTasks);
+      }
+    } catch (err) {
+      setSeedDocResult({ status: 'Error', feedback: 'Bağlantı hatası oluştu, lütfen tekrar deneyin.', newTasks: [] });
+    } finally {
+      setSeedDocBusy(false);
+    }
+  };
   
   const completedCount = tasks.filter(t => t.done).length;
   const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
@@ -149,6 +172,46 @@ export default function E3() {
               
             </div>
           </div>
+
+          {/* Seed Doc Widget */}
+          <div className="rounded-2xl border border-emerald-100 bg-white shadow-sm overflow-hidden">
+            <div className="bg-emerald-50 p-4 border-b border-emerald-100 flex items-center gap-3">
+              <div className="bg-white rounded-full p-2 shadow-sm text-emerald-600 font-bold text-xl">👨‍⚕️</div>
+              <div>
+                 <h2 className="font-bold text-emerald-900">Seed Doc (AI Bitki Doktoru)</h2>
+                 <p className="text-xs text-emerald-700">Bugünkü gözlemlerinizi yazın, analiz edip gerekli kurtarma görevlerini listenize ekleyeyim.</p>
+              </div>
+            </div>
+            <div className="p-6">
+               <textarea
+                  value={seedDocInput}
+                  onChange={(e) => setSeedDocInput(e.target.value)}
+                  placeholder="Örneğin: 'Şapkaların üzerinde siyah lekeler oluşmaya başladı ve kötü kokuyor...'"
+                  className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none"
+                  rows={3}
+               />
+               <div className="mt-3 flex justify-end">
+                  <Button onClick={handleSeedDoc} disabled={seedDocBusy || !seedDocInput.trim()}>
+                    {seedDocBusy ? 'Analiz Ediliyor...' : 'Muayene Et'}
+                  </Button>
+               </div>
+        
+               {seedDocResult && (
+                 <div className={`mt-4 p-4 rounded-xl border ${seedDocResult.status === 'Healthy' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : seedDocResult.status === 'Error' ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-red-50 border-red-200 text-red-900'}`}>
+                   <h4 className="font-bold text-sm mb-1">{seedDocResult.status === 'Healthy' ? '✅ Bitkiniz Sağlıklı' : seedDocResult.status === 'Attention' ? '⚠️ Acil Durum Tespiti' : '❌ Hata'}</h4>
+                   <p className="text-sm font-medium">{seedDocResult.feedback}</p>
+                   {seedDocResult.newTasks?.length > 0 && (
+                     <div className="mt-3 pt-3 border-t border-red-200/30">
+                       <p className="text-xs font-bold mb-2">Seed Doc Listeye Acil Görevler Ekledi:</p>
+                       <ul className="list-disc pl-4 text-xs font-semibold space-y-1">
+                         {seedDocResult.newTasks.map((t, idx) => <li key={idx}>{t}</li>)}
+                       </ul>
+                     </div>
+                   )}
+                 </div>
+               )}
+            </div>
+          </div>
         </div>
 
         {/* Right Column (Status) */}
@@ -158,10 +221,9 @@ export default function E3() {
             
             <div className="mt-6 flex flex-col items-center justify-center">
               <div className="relative flex h-32 w-32 items-center justify-center rounded-full border-8 border-emerald-100 bg-white">
-                <span className="text-4xl text-emerald-600">🍄</span>
-                {/* SVG Circular Progress conceptually */}
+                <span className="text-5xl">{dayIndex <= 14 ? '🌱' : ((user?.selectedPlant || '').toLowerCase().includes('mantar') ? '🍄' : '🌿')}</span>
               </div>
-              <p className="mt-4 font-bold text-slate-700">Hasata Son 18 Gün</p>
+              <p className="mt-4 font-bold text-slate-700">Hasata Son {Math.max(0, 30 - dayIndex)} Gün</p>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-center text-sm">
