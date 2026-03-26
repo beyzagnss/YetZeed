@@ -22,50 +22,6 @@ export default function E2Result() {
         setLoading(false)
       } catch (err) {
         console.error(err)
-        // Eğer API Key yoksa demo amaçlı sahte veri göster (MVP testleri için)
-        if (err.message.includes('API Key eksik')) {
-          setTimeout(() => {
-            setRecommendations([
-              {
-                name: 'Marul (Yeşil Salata)',
-                profitability: 'Orta',
-                difficulty: 'Çok Kolay',
-                cost: '300–600 TL',
-                reason: 'Dikey tarım duvarı veya balkon için en başlangıç dostu seçenek. 6–8 saat ışık yeterli, hızlı hasat ve düzenli gelir sağlar.'
-              },
-              {
-                name: 'İstiridye Mantarı',
-                profitability: 'Yüksek',
-                difficulty: 'Kolay',
-                cost: '1.500 TL',
-                reason: 'Kapalı alanda az ışıkla yetişir. Yüksek talep, düzenli hasat döngüsü ve yüksek pazar fiyatıyla güvenli başlangıç bitkisi.'
-              },
-              {
-                name: 'Safran',
-                profitability: 'Çok Yüksek',
-                difficulty: 'Zor',
-                cost: '6.000 TL',
-                reason: 'Gram başına en yüksek katma değerli ürün. Uzun vadede mükemmel yatırım, TKDK/KOSGEB hibe desteğiyle başlangıç maliyeti düşürülebilir.'
-              },
-              {
-                name: 'Fesleğen (Microgreens)',
-                profitability: 'Orta',
-                difficulty: 'Çok Kolay',
-                cost: '300–700 TL',
-                reason: 'Mutfak tezgahı veya balkon yeterli. Çok hızlı hasat (3–4 hafta), semt pazarı ve restoran satışına uygun.'
-              },
-              {
-                name: 'Nane',
-                profitability: 'Orta',
-                difficulty: 'Kolay',
-                cost: '300–700 TL',
-                reason: 'Çok aydınlık pencere veya balkon yeterli. Saksıda sınırlı bir yayılım, kolay bakım ve çay/baharat pazarında sürekli talep.'
-              }
-            ])
-            setLoading(false)
-          }, 2000)
-          return
-        }
         setError(err.message)
         setLoading(false)
       }
