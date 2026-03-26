@@ -79,9 +79,16 @@ export default function E3() {
                  </div>
                  <div>
                    <h3 className={`font-bold ${i < 3 ? 'text-sky-900' : 'text-slate-700'}`}>{inc.title}</h3>
-                   <span className="inline-block mt-1 rounded bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">
-                     {inc.source}
-                   </span>
+                   <div className="flex flex-wrap gap-2 mt-1">
+                     <span className="inline-block rounded bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                       {inc.source}
+                     </span>
+                     {inc.tags?.includes('kadin') && (
+                       <span className="inline-block rounded bg-purple-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-700 border border-purple-200">
+                         ✨ Kadın Girişimcilere Destek Bulunuyor
+                       </span>
+                     )}
+                   </div>
                    <p className={`mt-2 text-sm ${i < 3 ? 'text-sky-800' : 'text-slate-500'}`}>
                      {inc.description}
                    </p>
