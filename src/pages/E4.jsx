@@ -119,6 +119,40 @@ export default function E4() {
         </div>
       </div>
 
+      {/* 3. AI Advisor using the data logic - MOVED TO TOP */}
+      <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-6 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-sky-100 text-2xl">🤖</div>
+          <div className="flex-1">
+            <h2 className="text-lg font-bold text-sky-900">AI Finans Danışmanı</h2>
+            <p className="mt-1 text-sm text-sky-800 mb-4">
+              Arka planda tüm aylık gelişiminizi (Chart Data) ve yıllık kârlılık oranlarınızı dikkate alarak girişiminiz için bir sonraki adımı tavsiye ederim.
+            </p>
+            
+            {!advice ? (
+              <Button 
+                onClick={handleGetAdvice} 
+                disabled={loadingAdvice}
+                className="w-full sm:w-auto bg-sky-600 hover:bg-sky-700"
+              >
+                {loadingAdvice ? 'Analiz Ediliyor...' : `${MONTH_NAMES[currentMonth - 1]} Ayı Bütçe Tavsiyesi Al`}
+              </Button>
+            ) : (
+              <div className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-sky-200 bg-white p-5 shadow-sm relative">
+                  <p className="text-sm font-medium leading-relaxed text-slate-800">"{advice}"</p>
+                  <button 
+                    onClick={handleGetAdvice}
+                    disabled={loadingAdvice}
+                    className="mt-4 text-xs font-bold text-sky-600 hover:underline hover:text-sky-800"
+                  >
+                    {loadingAdvice ? 'Yenileniyor...' : 'Tavsiyeyi Güncelle'}
+                  </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* 1. Annual Dashboard Overview */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-4 mb-4">
@@ -295,40 +329,6 @@ export default function E4() {
         </div>
       </div>
 
-      {/* 3. AI Advisor using the data logic */}
-      <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-6 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-sky-100 text-2xl">🤖</div>
-          <div className="flex-1">
-            <h2 className="text-lg font-bold text-sky-900">AI Finans Danışmanı</h2>
-            <p className="mt-1 text-sm text-sky-800 mb-4">
-              Arka planda tüm aylık gelişiminizi (Chart Data) ve yıllık kârlılık oranlarınızı dikkate alarak girişiminiz için bir sonraki adımı tavsiye ederim.
-            </p>
-            
-            {!advice ? (
-              <Button 
-                onClick={handleGetAdvice} 
-                disabled={loadingAdvice}
-                className="w-full sm:w-auto bg-sky-600 hover:bg-sky-700"
-              >
-                {loadingAdvice ? 'Analiz Ediliyor...' : `${MONTH_NAMES[currentMonth - 1]} Ayı Bütçe Tavsiyesi Al`}
-              </Button>
-            ) : (
-              <div className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-sky-200 bg-white p-5 shadow-sm relative">
-                  <p className="text-sm font-medium leading-relaxed text-slate-800">"{advice}"</p>
-                  <button 
-                    onClick={handleGetAdvice}
-                    disabled={loadingAdvice}
-                    className="mt-4 text-xs font-bold text-sky-600 hover:underline hover:text-sky-800"
-                  >
-                    {loadingAdvice ? 'Yenileniyor...' : 'Tavsiyeyi Güncelle'}
-                  </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    
     </div>
   );
 }
