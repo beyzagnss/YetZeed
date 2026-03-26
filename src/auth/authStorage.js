@@ -3,6 +3,26 @@ const STORAGE_KEYS = {
   session: 'yetzeeed_session_v1'
 }
 
+// Bir seferlik taşıma (migration) işlemi: beyzaisilgunes@gmail.com için güvenlik sorusunu tanımla
+try {
+  const rawUsers = localStorage.getItem(STORAGE_KEYS.users)
+  if (rawUsers) {
+    const users = JSON.parse(rawUsers)
+    let updated = false
+    const idx = users.findIndex(u => u.email === 'beyzaisilgunes@gmail.com' && !u.securityQuestion)
+    if (idx !== -1) {
+      users[idx].securityQuestion = "İlkokul öğretmeninizin soyadı nedir?"
+      users[idx].securityAnswer = "ılgın"
+      updated = true
+    }
+    if (updated) {
+      localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users))
+    }
+  }
+} catch (e) {
+  // Ignore parsing errors here
+}
+
 function safeJsonParse(value, fallback) {
   try {
     return JSON.parse(value)
