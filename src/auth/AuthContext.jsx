@@ -10,8 +10,8 @@ export function AuthProvider({ children }) {
     return {
       user,
       isAuthed: Boolean(user),
-      signUp: async ({ email, password }) => {
-        const u = signUp({ email, password })
+      signUp: async ({ email, password, securityQuestion, securityAnswer }) => {
+        const u = signUp({ email, password, securityQuestion, securityAnswer })
         setUser(u)
         return u
       },
