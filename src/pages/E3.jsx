@@ -115,8 +115,11 @@ export default function E3() {
       {/* Overview Head */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">Dashboard</h1>
-          <p className="mt-1 text-slate-600">
+          <h1 className="text-xl font-extrabold text-emerald-700 md:text-2xl leading-tight">
+            YetZeed <br />
+            <span className="text-emerald-500">Let's Seed!</span>
+          </h1>
+          <p className="mt-2 text-slate-600">
             <span className="font-semibold text-emerald-800">{displayName}</span> üretiminizin {dayIndex}. Günündesiniz.
           </p>
         </div>
@@ -125,7 +128,7 @@ export default function E3() {
              <Button variant="secondary" className="w-full sm:w-auto">Bütçeye Git</Button>
           </Link>
           <Button onClick={() => setDrawerOpen(!drawerOpen)} className="w-full sm:w-auto">
-            ✨ AI Teşvikleri
+            Girişiminiz için Teşvikler
           </Button>
         </div>
       </div>
@@ -144,10 +147,15 @@ export default function E3() {
           drawerOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 p-6">
+        <div className="flex items-start justify-between border-b border-slate-100 p-6">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-900">✨ AI Teşvik Danışmanı</h2>
-            <p className="mt-1 text-sm text-slate-500">Profilinize en uygun güncel hibe ve muafiyetler</p>
+            <h2 className="text-lg font-extrabold text-slate-900">Teşvik Önerileri</h2>
+            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700 border border-indigo-100">
+                ✨ AI Powered
+              </span>
+              <span className="text-sm text-slate-500">Profilinize en uygun güncel hibe ve muafiyetler</span>
+            </div>
           </div>
           <button 
             onClick={() => setDrawerOpen(false)} 
