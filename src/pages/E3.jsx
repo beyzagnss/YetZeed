@@ -49,7 +49,13 @@ export default function E3() {
   
   const plantNameObj = typeof user?.selectedPlant === 'object' 
     ? user?.selectedPlant 
-    : { name: user?.selectedPlant, stages: { germinationDays: 14, harvestDays: 30 } };
+    : { name: user?.selectedPlant, stages: { germinationDays: 14, harvestDays: 30 }, notes: '' };
+
+  const [notes, setNotes] = useState(plantNameObj?.notes || '')
+
+  useEffect(() => {
+    setNotes(plantNameObj?.notes || '');
+  }, [plantNameObj?.notes]);
     
   const plantName = plantNameObj?.name;
   const customPlantName = plantNameObj?.customName;
@@ -75,6 +81,12 @@ export default function E3() {
       saveUserPlant({ ...plantNameObj, customName: editNameValue.trim() });
     }
     setIsEditingName(false);
+  };
+
+  const handleNotesSave = () => {
+    if (notes !== (plantNameObj?.notes || '')) {
+      saveUserPlant({ ...plantNameObj, notes });
+    }
   };
 
   const handleSeedDoc = async () => {
@@ -336,6 +348,38 @@ export default function E3() {
               </div>
             </div>
           </div>
+
+          {/* Aesthetic Notepad */}
+          <div className="relative mt-8 rounded-lg bg-[#f0fdf4] p-6 shadow-[0_4px_12px_rgba(16,185,129,0.06)] border border-emerald-100/60 transform rotate-1 transition-transform hover:rotate-0">
+            {/* Masking Tape effect */}
+            <div 
+              className="absolute -top-3 left-1/2 w-20 h-6 -translate-x-1/2 bg-white/60 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.05)] -rotate-2 z-10 opacity-90" 
+              style={{ clipPath: 'polygon(2% 10%, 98% 5%, 95% 90%, 5% 95%)' }}
+            ></div>
+            
+            <h3 className="font-bold text-emerald-800 mb-2 text-lg flex items-center gap-2">
+              <span className="text-xl">📝</span> <span>Botanik Notlarım</span>
+            </h3>
+            <div className="relative">
+              <textarea
+                className="w-full bg-transparent border-none outline-none resize-none text-emerald-900 placeholder-emerald-700/40 text-sm font-medium"
+                rows={6}
+                placeholder="Örn: Yapraklarda canlı bir yeşil var, bugün fazladan su verdim..."
+                style={{
+                  backgroundImage: 'linear-gradient(transparent, transparent 27px, rgba(16, 185, 129, 0.15) 0px)',
+                  backgroundSize: '100% 28px',
+                  lineHeight: '28px'
+                }}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                onBlur={handleNotesSave}
+              />
+            </div>
+            <div className="mt-2 text-right text-[10px] font-bold text-emerald-600/50 uppercase tracking-wider">
+              * Otomatik Kaydedilir
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
