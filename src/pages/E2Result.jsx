@@ -23,7 +23,6 @@ export default function E2Result() {
       } catch (err) {
         console.error(err)
         const msg = err?.message || ''
-        // Gemini API key yoksa MVP testleri icin demo sonuc gosteriyoruz.
         if (msg.includes('API Key eksik') || msg.includes('Gemini API Key eksik')) {
           setRecommendations([
             {
@@ -53,9 +52,9 @@ export default function E2Result() {
           ])
           setLoading(false)
           return
+        } else {
+          setError(msg)
         }
-
-        setError(msg)
         setLoading(false)
       }
     }
