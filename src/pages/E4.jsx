@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import Button from '../components/ui/Button';
-import { getBudgetAdvice } from '../services/aiService';
+import { getBudgetAdvice } from '../features/ai/aiService';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
-import { getMonthlyData, saveMonthlyData, getAnnualTotals } from '../services/financeStorage';
+import { useAuth } from '../features/auth/AuthContext';
+import { getMonthlyData, saveMonthlyData, getAnnualTotals } from '../features/financial/financeStorage';
 
 const MONTH_NAMES = [
   'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 

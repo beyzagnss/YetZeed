@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
-import { getPlantRecommendations, getPlantBiologicalProfile } from '../services/aiService'
-import { useAuth } from '../auth/AuthContext'
+import { getPlantRecommendations, getPlantBiologicalProfile } from '../features/ai/aiService'
+import { useAuth } from '../features/auth/AuthContext'
 
 export default function E2Result() {
   const { user, completeOnboarding, saveUserPlant } = useAuth()

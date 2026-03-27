@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
-import { useAuth } from '../auth/AuthContext'
-import { getSecurityQuestion, verifySecurityAnswer, resetPassword } from '../auth/authService'
+import { useAuth } from '../features/auth/AuthContext'
+import { getSecurityQuestion, verifySecurityAnswer, resetPassword } from '../features/auth/authService'
 
 const SECURITY_QUESTIONS = [
   "İlk evcil hayvanınızın adı nedir?",

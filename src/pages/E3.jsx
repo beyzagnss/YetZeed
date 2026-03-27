@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import Button from '../components/ui/Button'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
-import { getTodayTasks, toggleTask as toggleTaskService, getTaskHistoryCount, addCustomTasks } from '../services/taskService'
-import { getSortedIncentives, getSeedDocFeedback } from '../services/aiService'
+import { useAuth } from '../features/auth/AuthContext'
+import { getTodayTasks, toggleTask as toggleTaskService, getTaskHistoryCount, addCustomTasks } from '../features/dashboard/taskService'
+import { getSortedIncentives, getSeedDocFeedback } from '../features/ai/aiService'
 
 const plantGridData = [
   { name: 'Safran', w: 5, h: 4, x: 0, y: 0 },

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
-import { QUESTIONS } from '../onboarding/questions'
+import { useAuth } from '../features/auth/AuthContext'
+import { QUESTIONS } from '../features/onboarding/questions'
 import Button from './ui/Button'
 
 export default function OnboardingForm() {

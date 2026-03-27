@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import Button from '../components/ui/Button'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../features/auth/AuthContext'
 
 export default function E1() {
   const { isAuthed } = useAuth()

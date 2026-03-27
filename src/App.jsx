@@ -1,14 +1,14 @@
 import { BrowserRouter, Navigate, Route, Routes, Link } from 'react-router-dom'
 import E1 from './pages/E1'
 import E2 from './pages/E2'
-import E2Result from './pages/E2Result'
-import E3 from './pages/E3'
-import E4 from './pages/E4'
+import E2Result from './features/plants/E2Result'
+import E3 from './features/dashboard/E3'
+import E4 from './features/financial/E4'
 import Auth from './pages/Auth'
-import RequireAuth from './auth/RequireAuth'
-import RequireOnboarding from './auth/RequireOnboarding'
+import RequireAuth from './features/auth/RequireAuth'
+import RequireOnboarding from './features/auth/RequireOnboarding'
 import Button from './components/ui/Button'
-import { useAuth } from './auth/AuthContext'
+import { useAuth } from './features/auth/AuthContext'
 
 export default function App() {
   const { user, isAuthed, signOut } = useAuth()
