@@ -25,6 +25,7 @@ YetZeed, evdeki boş alanları AI desteğiyle yüksek verimli birer üretim merk
 *  **React \+ Tailwind CSS** — Modern, hızlı ve responsive kullanıcı arayüzü  
 *  **Cursor (Agent Mode)** — AI destekli kod editörü  
 *  **Netlify** — Canlıya alma ve küresel erişim
+*  **Canva, Pippit, Loom** - Görsel içerik üretimi ve yayınlanması
 
 **Fiziksel İnovasyon:**
 
