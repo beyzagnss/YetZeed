@@ -13,7 +13,8 @@ YetZeed, evdeki boş alanları AI desteğiyle yüksek verimli birer üretim merk
 ## **Canlı Demo**
 
 * 🌐 **Yayın Linki:** [https://yetzeedd.netlify.app](https://yetzeed.netlify.app)  
-* 🎥 **Demo Video:** 
+* 🎥 **Demo Video:** https://www.loom.com/share/5f3a4eda4cf643e599f0e641a1e0408f
+* 📍 **Youtube Shorts Tanıtım Videosu Linki:** https://youtube.com/shorts/akBZWbQdijg?si=O8hmE0pkohZ1kPkb
 
 ## **Kullanılan Teknolojiler**
 
